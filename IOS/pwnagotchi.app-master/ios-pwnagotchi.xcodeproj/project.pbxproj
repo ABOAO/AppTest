@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -703,7 +703,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "\"ios-pwnagotchi WatchKit Extension/Preview Content\"";
-				DEVELOPMENT_TEAM = 5TKBNNH75A;
+				DEVELOPMENT_TEAM = J8G9Y2Q8R2;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "ios-pwnagotchi WatchKit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -728,7 +728,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "\"ios-pwnagotchi WatchKit Extension/Preview Content\"";
-				DEVELOPMENT_TEAM = 5TKBNNH75A;
+				DEVELOPMENT_TEAM = J8G9Y2Q8R2;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "ios-pwnagotchi WatchKit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -754,7 +754,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 13;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
-				DEVELOPMENT_TEAM = 5TKBNNH75A;
+				DEVELOPMENT_TEAM = J8G9Y2Q8R2;
 				IBSC_MODULE = ios_pwnagotchi_WatchKit_Extension;
 				INFOPLIST_FILE = "ios-pwnagotchi WatchKit App/Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = eu.fnordcordia.pwnagotchi.watchkitapp;
@@ -777,7 +777,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 13;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
-				DEVELOPMENT_TEAM = 5TKBNNH75A;
+				DEVELOPMENT_TEAM = J8G9Y2Q8R2;
 				IBSC_MODULE = ios_pwnagotchi_WatchKit_Extension;
 				INFOPLIST_FILE = "ios-pwnagotchi WatchKit App/Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = eu.fnordcordia.pwnagotchi.watchkitapp;
@@ -803,7 +803,7 @@
 				CURRENT_PROJECT_VERSION = 13;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"ios-pwnagotchi/Preview Content\"";
-				DEVELOPMENT_TEAM = 5TKBNNH75A;
+				DEVELOPMENT_TEAM = J8G9Y2Q8R2;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "ios-pwnagotchi/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -829,7 +829,7 @@
 				CURRENT_PROJECT_VERSION = 13;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"ios-pwnagotchi/Preview Content\"";
-				DEVELOPMENT_TEAM = 5TKBNNH75A;
+				DEVELOPMENT_TEAM = J8G9Y2Q8R2;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "ios-pwnagotchi/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
