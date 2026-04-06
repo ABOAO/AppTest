@@ -1,35 +1,130 @@
-import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import {
+  SafeAreaView,
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
+
+const CARD_POOL = [
+  { name: '小火龍', rarity: 'SSR', rate: 0.03, color: '#f59e0b' },
+  { name: '電氣鼠', rarity: 'SR', rate: 0.12, color: '#a855f7' },
+  { name: '水精靈', rarity: 'SR', rate: 0.12, color: '#6366f1' },
+  { name: '樹精', rarity: 'R', rate: 0.23, color: '#22c55e' },
+  { name: '小史萊姆', rarity: 'R', rate: 0.25, color: '#10b981' },
+  { name: '訓練木偶', rarity: 'N', rate: 0.25, color: '#6b7280' },
+];
+
+const DRAW_COST = 100;
+
+const rarityCountTemplate = { SSR: 0, SR: 0, R: 0, N: 0 };
+
+const drawOneCard = () => {
+  const roll = Math.random();
+  let cumulative = 0;
+
+  for (const card of CARD_POOL) {
+    cumulative += card.rate;
+    if (roll <= cumulative) {
+      return card;
+    }
+  }
+
+  return CARD_POOL[CARD_POOL.length - 1];
+};
 
 const App = () => {
-  const [isPageOpen, setIsPageOpen] = useState(false);
+  const [coins, setCoins] = useState(1000);
+  const [currentCard, setCurrentCard] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
-  const openPage = () => {
-    setIsPageOpen(true);
+  const canDraw = coins >= DRAW_COST;
+
+  const rarityStats = useMemo(
+    () =>
+      history.reduce((acc, item) => {
+        acc[item.rarity] += 1;
+        return acc;
+      }, { ...rarityCountTemplate }),
+    [history],
+  );
+
+  const handleDraw = () => {
+    if (!canDraw) {
+      return;
+    }
+
+    const card = drawOneCard();
+    setCoins((prev) => prev - DRAW_COST);
+    setCurrentCard(card);
+    setHistory((prev) => [card, ...prev].slice(0, 20));
+    setIsPanelOpen(true);
   };
 
-  const closePage = () => {
-    setIsPageOpen(false);
+  const handleRecharge = () => {
+    setCoins((prev) => prev + 300);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.box}>
-        <Text style={styles.text}>這是底下畫面</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>✨ 抽卡遊戲雛形</Text>
+        <Text style={styles.subtitle}>金幣：{coins}（單抽 {DRAW_COST}）</Text>
       </View>
 
-      {isPageOpen && (
-        <View style={styles.pageContainer}>
-          <TouchableOpacity style={styles.closeButton} onPress={closePage}>
+      <View style={styles.mainCard}>
+        <Text style={styles.mainText}>目前活動卡池</Text>
+        <Text style={styles.mainSubText}>SSR 3% / SR 24% / R 48% / N 25%</Text>
+
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={[styles.actionButton, !canDraw && styles.actionButtonDisabled]}
+            onPress={handleDraw}
+            disabled={!canDraw}
+          >
+            <Text style={styles.actionButtonText}>{canDraw ? '單抽一次' : '金幣不足'}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.ghostButton} onPress={handleRecharge}>
+            <Text style={styles.ghostButtonText}>+300 金幣</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.statsCard}>
+        <Text style={styles.sectionTitle}>抽卡統計</Text>
+        <Text style={styles.statsText}>SSR：{rarityStats.SSR} 張</Text>
+        <Text style={styles.statsText}>SR：{rarityStats.SR} 張</Text>
+        <Text style={styles.statsText}>R：{rarityStats.R} 張</Text>
+        <Text style={styles.statsText}>N：{rarityStats.N} 張</Text>
+      </View>
+
+      {isPanelOpen && currentCard && (
+        <View style={styles.panel}>
+          <TouchableOpacity style={styles.closeButton} onPress={() => setIsPanelOpen(false)}>
             <Text style={styles.closeButtonText}>關閉</Text>
           </TouchableOpacity>
-          <Text style={styles.pageText}>123</Text>
+
+          <Text style={styles.sectionTitle}>恭喜抽到！</Text>
+          <View style={[styles.resultBadge, { backgroundColor: currentCard.color }]}>
+            <Text style={styles.resultRarity}>{currentCard.rarity}</Text>
+            <Text style={styles.resultName}>{currentCard.name}</Text>
+          </View>
+
+          <Text style={styles.sectionTitle}>最近紀錄（最多 20 筆）</Text>
+          <ScrollView style={styles.historyList}>
+            {history.map((item, idx) => (
+              <View key={`${item.name}-${idx}`} style={styles.historyRow}>
+                <Text style={[styles.historyRarity, { color: item.color }]}>{item.rarity}</Text>
+                <Text style={styles.historyName}>{item.name}</Text>
+              </View>
+            ))}
+          </ScrollView>
         </View>
       )}
-
-      <TouchableOpacity style={styles.openButton} onPress={openPage}>
-        <Text style={styles.openButtonText}>打開分頁</Text>
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -37,54 +132,137 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f3f4f6',
+    padding: 16,
   },
-  box: {
+  header: {
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  subtitle: {
+    marginTop: 6,
+    fontSize: 15,
+    color: '#4b5563',
+  },
+  mainCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 12,
+  },
+  mainText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  mainSubText: {
+    marginTop: 6,
+    color: '#6b7280',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    marginTop: 16,
+  },
+  actionButton: {
     flex: 1,
-    backgroundColor: '#ddd', // 底層頁面灰色
+    backgroundColor: '#2563eb',
+    borderRadius: 10,
+    paddingVertical: 12,
     alignItems: 'center',
+    marginRight: 10,
+  },
+  actionButtonDisabled: {
+    backgroundColor: '#9ca3af',
+  },
+  actionButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  ghostButton: {
+    borderColor: '#2563eb',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
     justifyContent: 'center',
   },
-  openButton: {
-    position: 'absolute',
-    bottom: 20,
-    alignSelf: 'center',
-    padding: 10,
-    backgroundColor: '#3498db',
-    borderRadius: 5,
+  ghostButtonText: {
+    color: '#2563eb',
+    fontWeight: '700',
   },
-  openButtonText: {
-    color: '#fff',
+  statsCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    padding: 16,
+  },
+  sectionTitle: {
     fontSize: 16,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 8,
   },
-  pageContainer: {
+  statsText: {
+    fontSize: 14,
+    color: '#374151',
+    marginBottom: 3,
+  },
+  panel: {
     position: 'absolute',
-    bottom: 0,
     left: 0,
     right: 0,
-    height: '75%', // 新分頁打開到整個螢幕的四分之三位置
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    padding: 10,
-    zIndex: 1, // 設定 zIndex 為 1，確保分頁浮在底層畫面上方
+    bottom: 0,
+    height: '72%',
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
   },
   closeButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    padding: 10,
+    alignSelf: 'flex-end',
+    paddingVertical: 4,
   },
   closeButtonText: {
-    color: '#3498db',
-    fontSize: 16,
+    color: '#2563eb',
+    fontWeight: '600',
   },
-  pageText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  resultBadge: {
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
   },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  resultRarity: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 22,
+  },
+  resultName: {
+    color: '#fff',
+    marginTop: 4,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  historyList: {
+    marginTop: 4,
+  },
+  historyRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+    paddingVertical: 8,
+  },
+  historyRarity: {
+    fontWeight: '800',
+  },
+  historyName: {
+    color: '#374151',
   },
 });
 

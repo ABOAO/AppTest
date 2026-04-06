@@ -26,6 +26,11 @@ struct NavView: View {
                     Image(systemName: "ellipsis")
                     Text("Settings")
             }
+            GachaView()
+                .tabItem {
+                    Image(systemName: "sparkles")
+                    Text("Gacha")
+            }
         }
     }
 }
