@@ -24,6 +24,12 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 
+# Xcode
+IOS/pwnagotchi.app-master/build/
+xcuserdata/
+*.xcarchive
+DerivedData/
+
 # macOS
 .DS_Store
 *.pem

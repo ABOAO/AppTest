@@ -18,8 +18,23 @@ const CARD_POOL = [
 ];
 
 const DRAW_COST = 100;
+const RECHARGE_AMOUNT = 300;
+const HISTORY_LIMIT = 20;
 
-const rarityCountTemplate = { SSR: 0, SR: 0, R: 0, N: 0 };
+const RARITY_ORDER = ['SSR', 'SR', 'R', 'N'];
+
+const rarityCountTemplate = Object.fromEntries(RARITY_ORDER.map((rarity) => [rarity, 0]));
+
+// 由卡池資料計算各稀有度的合計機率，避免顯示文字與實際卡池不同步
+const POOL_SUMMARY = RARITY_ORDER.map((rarity) => {
+  const total = CARD_POOL.filter((card) => card.rarity === rarity).reduce(
+    (sum, card) => sum + card.rate,
+    0,
+  );
+  return `${rarity} ${Math.round(total * 100)}%`;
+}).join(' / ');
+
+let nextDrawId = 0;
 
 const drawOneCard = () => {
   const roll = Math.random();
@@ -57,15 +72,15 @@ const App = () => {
       return;
     }
 
-    const card = drawOneCard();
+    const record = { ...drawOneCard(), id: nextDrawId++ };
     setCoins((prev) => prev - DRAW_COST);
-    setCurrentCard(card);
-    setHistory((prev) => [card, ...prev].slice(0, 20));
+    setCurrentCard(record);
+    setHistory((prev) => [record, ...prev].slice(0, HISTORY_LIMIT));
     setIsPanelOpen(true);
   };
 
   const handleRecharge = () => {
-    setCoins((prev) => prev + 300);
+    setCoins((prev) => prev + RECHARGE_AMOUNT);
   };
 
   return (
@@ -77,7 +92,7 @@ const App = () => {
 
       <View style={styles.mainCard}>
         <Text style={styles.mainText}>目前活動卡池</Text>
-        <Text style={styles.mainSubText}>SSR 3% / SR 24% / R 48% / N 25%</Text>
+        <Text style={styles.mainSubText}>{POOL_SUMMARY}</Text>
 
         <View style={styles.buttonRow}>
           <TouchableOpacity
@@ -96,10 +111,11 @@ const App = () => {
 
       <View style={styles.statsCard}>
         <Text style={styles.sectionTitle}>抽卡統計</Text>
-        <Text style={styles.statsText}>SSR：{rarityStats.SSR} 張</Text>
-        <Text style={styles.statsText}>SR：{rarityStats.SR} 張</Text>
-        <Text style={styles.statsText}>R：{rarityStats.R} 張</Text>
-        <Text style={styles.statsText}>N：{rarityStats.N} 張</Text>
+        {RARITY_ORDER.map((rarity) => (
+          <Text key={rarity} style={styles.statsText}>
+            {rarity}：{rarityStats[rarity]} 張
+          </Text>
+        ))}
       </View>
 
       {isPanelOpen && currentCard && (
@@ -114,10 +130,10 @@ const App = () => {
             <Text style={styles.resultName}>{currentCard.name}</Text>
           </View>
 
-          <Text style={styles.sectionTitle}>最近紀錄（最多 20 筆）</Text>
+          <Text style={styles.sectionTitle}>最近紀錄（最多 {HISTORY_LIMIT} 筆）</Text>
           <ScrollView style={styles.historyList}>
-            {history.map((item, idx) => (
-              <View key={`${item.name}-${idx}`} style={styles.historyRow}>
+            {history.map((item) => (
+              <View key={item.id} style={styles.historyRow}>
                 <Text style={[styles.historyRarity, { color: item.color }]}>{item.rarity}</Text>
                 <Text style={styles.historyName}>{item.name}</Text>
               </View>

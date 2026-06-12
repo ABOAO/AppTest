@@ -22,6 +22,20 @@ private let gachaPool: [GachaCard] = [
 ]
 
 private let drawCost = 100
+private let rechargeAmount = 300
+private let historyLimit = 20
+
+private let rarityOrder = ["SSR", "SR", "R", "N"]
+
+// 由卡池資料計算各稀有度的合計機率，避免顯示文字與實際卡池不同步
+private let poolSummary: String = rarityOrder
+    .map { rarity in
+        let total = gachaPool
+            .filter { $0.rarity == rarity }
+            .reduce(0) { $0 + $1.rate }
+        return "\(rarity) \(Int((total * 100).rounded()))%"
+    }
+    .joined(separator: " / ")
 
 struct GachaView: View {
     @State private var coins = 1000
@@ -33,7 +47,7 @@ struct GachaView: View {
     }
 
     private var stats: [String: Int] {
-        history.reduce(into: ["SSR": 0, "SR": 0, "R": 0, "N": 0]) { partialResult, item in
+        history.reduce(into: [:]) { partialResult, item in
             partialResult[item.card.rarity, default: 0] += 1
         }
     }
@@ -53,7 +67,7 @@ struct GachaView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("目前活動卡池")
                         .font(.headline)
-                    Text("SSR 3% / SR 24% / R 48% / N 25%")
+                    Text(poolSummary)
                         .font(.caption)
                         .foregroundColor(.secondary)
 
@@ -65,8 +79,8 @@ struct GachaView: View {
                         .buttonStyle(.borderedProminent)
                         .disabled(!canDraw)
 
-                        Button(action: { coins += 300 }) {
-                            Text("+300 金幣")
+                        Button(action: { coins += rechargeAmount }) {
+                            Text("+\(rechargeAmount) 金幣")
                         }
                         .buttonStyle(.bordered)
                     }
@@ -78,10 +92,9 @@ struct GachaView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("抽卡統計")
                         .font(.headline)
-                    Text("SSR：\(stats["SSR", default: 0])")
-                    Text("SR：\(stats["SR", default: 0])")
-                    Text("R：\(stats["R", default: 0])")
-                    Text("N：\(stats["N", default: 0])")
+                    ForEach(rarityOrder, id: \.self) { rarity in
+                        Text("\(rarity)：\(stats[rarity, default: 0])")
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -109,7 +122,7 @@ struct GachaView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                List(history.prefix(20)) { item in
+                List(history) { item in
                     HStack {
                         Text(item.card.rarity)
                             .fontWeight(.bold)
@@ -134,7 +147,7 @@ struct GachaView: View {
         coins -= drawCost
         currentResult = result
         history.insert(result, at: 0)
-        history = Array(history.prefix(20))
+        history = Array(history.prefix(historyLimit))
     }
 
     private func pickCard() -> GachaCard {
